@@ -3,6 +3,16 @@ Implementation of "YOLOv7: Trainable bag-of-freebies sets new state-of-the-art f
 
 Pose estimation implimentation is based on [YOLO-Pose](https://arxiv.org/abs/2204.06806). 
 
+## Install
+Clone repo and install [requirements.txt](https://github.com/ultralytics/yolov5/blob/master/requirements.txt) in a
+[**Python>=3.7.0**](https://www.python.org/) environment, including
+[**PyTorch>=1.7**](https://pytorch.org/get-started/locally/).
+
+```bash
+pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117 #install offical torch for gpu supports
+pip install -r requirements.txt  # install
+```
+
 ## Dataset preparison
 
 [[Keypoints Labels of MS COCO 2017]](https://github.com/WongKinYiu/yolov7/releases/download/v0.1/coco2017labels-keypoints.zip)
@@ -24,6 +34,12 @@ TensorRT:[https://github.com/nanmi/yolov7-pose](https://github.com/nanmi/yolov7-
 
 ``` shell
 python test.py --data data/coco_kpts.yaml --img 960 --conf 0.001 --iou 0.65 --weights yolov7-w6-pose.pt --kpt-label
+```
+
+## Detected
+
+``` shell
+python detect.py --weights yolov7-w6-pose.pt --source 0 --kpt-label
 ```
 
 ## Citation
