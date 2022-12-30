@@ -4,6 +4,7 @@ import cv2
 import argparse
 import onnxruntime
 from tqdm import tqdm
+from models.common import letterbox
 import logging as logger
 
 logger.basicConfig(level=logger.INFO)
@@ -41,7 +42,8 @@ radius = 5
 
 
 def convert_img(raw, img_mean=127.5, img_scale=1 / 127.5):
-    raw = cv2.resize(raw, (640, 640), interpolation=cv2.INTER_LINEAR)
+    raw = letterbox(raw, (640, 640))
+    raw = cv2.resize(raw[0], (640, 640), interpolation=cv2.INTER_LINEAR)
     img = (raw - img_mean) * img_scale
     img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, 0)
@@ -68,7 +70,7 @@ def model_inference_image_list(model_path, source=None, mean=None, scale=None):
         img = cv2.imread(img_file)
         result = inference_processes(model_path, img, mean, scale)
         cv2.imshow('YoloV7 Result', result)
-        cv2.imwrite('result.png', img)
+        cv2.imwrite(f'result_{img_index}.png', result)
         if cv2.waitKey(0) == ord('q'):
             cv2.destroyAllWindows()
             continue
