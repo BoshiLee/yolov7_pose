@@ -6,6 +6,8 @@ import onnxruntime
 from tqdm import tqdm
 import logging as logger
 
+logger.basicConfig(level=logger.INFO)
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--model-path", type=str, default="../weights/yolov7-w6-pose.onnx")
 parser.add_argument('--source', type=str, default='./sample_ips.txt', help='source')  # file/folder, 0 for webcam
@@ -68,8 +70,9 @@ def model_inference_image_list(model_path, source=None, mean=None, scale=None):
         cv2.imshow('YoloV7 Result', result)
         cv2.imwrite('result.png', img)
         if cv2.waitKey(0) == ord('q'):
+            cv2.destroyAllWindows()
             continue
-    cv2.destroyAllWindows()
+
 
 
 def model_inference_streaming(model_path, source=None, mean=None, scale=None):
@@ -100,24 +103,33 @@ def post_process(frame, output, score_threshold=0.3):
     det_bboxes, det_scores, det_labels, kpts = output[:, 0:4], output[:, 4], output[:, 5], output[:, 6:]
     img = frame.copy()
     # To generate color based on det_label, to look into the codebase of Tensorflow object detection api.
+    messages = []
+    logger.info(f'\nBox Counts: {len(det_bboxes)}')
     for idx in range(len(det_bboxes)):
         det_bbox = det_bboxes[idx]
         kpt = kpts[idx]
         if det_scores[idx] > 0:
-            result_message = "{:8.0f} {:8.5f} {:8.5f} {:8.5f} {:8.5f} {:8.5f}\n".format(det_labels[idx],
-                                                                                        det_scores[idx], det_bbox[1],
-                                                                                        det_bbox[0], det_bbox[3],
-                                                                                        det_bbox[2])
-            logger.info(result_message)
+            messages.append("Label: {} \nScore: {:2.2f} \nbounding box: {:2.2f} {:2.2f} {:2.2f} {:2.2f}".format(
+                    int(det_labels[idx]),
+                    det_scores[idx],
+                    det_bbox[1],
+                    det_bbox[0],
+                    det_bbox[3],
+                    det_bbox[2]
+                )
+            )
         if det_scores[idx] > score_threshold:
             color_map = _CLASS_COLOR_MAP[int(det_labels[idx])]
             img = cv2.rectangle(img, (int(det_bbox[0]), int(det_bbox[1])), (int(det_bbox[2]), int(det_bbox[3])),
                                 color_map, 2)
             cv2.putText(img, "id:{}".format(int(det_labels[idx])), (int(det_bbox[0] + 5), int(det_bbox[1]) + 15),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_map[::-1], 2)
-            cv2.putText(img, "score:{:2.1f}".format(det_scores[idx]), (int(det_bbox[0] + 5), int(det_bbox[1]) + 30),
+            cv2.putText(img, "score:{:2.2f}".format(det_scores[idx]), (int(det_bbox[0] + 5), int(det_bbox[1]) + 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_map[::-1], 2)
             plot_skeleton_kpts(img, kpt)
+
+    for message in messages:
+        print(message)
     return img
 
 
