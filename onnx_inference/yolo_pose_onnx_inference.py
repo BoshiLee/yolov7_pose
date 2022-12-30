@@ -39,12 +39,12 @@ radius = 5
 
 
 def convert_img(raw, img_mean=127.5, img_scale=1 / 127.5):
-    img = cv2.resize(raw, (640, 640), interpolation=cv2.INTER_LINEAR)
-    img = (img - img_mean) * img_scale
+    raw = cv2.resize(raw, (640, 640), interpolation=cv2.INTER_LINEAR)
+    img = (raw - img_mean) * img_scale
     img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, 0)
     img = img.transpose(0, 3, 1, 2)
-    return img
+    return img, raw
 
 
 def model_inference(model_path=None, input=None):
@@ -79,20 +79,18 @@ def model_inference_streaming(model_path, source=None, mean=None, scale=None, ds
     while True:
         ret, frame = cap.read()
         result = inference_processes(model_path, frame, mean, scale)
-        # cv2.imshow('my_screen', result)
-        # press escape to exit
         cv2.imshow('YoloV7 Result', result)
-        if cv2.waitKey(30) == ord('q'):
+        if cv2.waitKey(1) == ord('q'):  # q to quit
+            cap.release()
+            cv2.destroyAllWindows()
             break
-    cap.release()
-    cv2.destroyAllWindows()
+
 
 
 def inference_processes(model_path, img_file, mean, scale):
-    input = convert_img(img_file, mean, scale)
+    input, frame = convert_img(img_file, mean, scale)
     output = model_inference(model_path, input)
-    # dst_file = os.path.join(dst_path, os.path.basename('img.png'))
-    result = post_process(img_file, output[0], score_threshold=0.3)
+    result = post_process(frame, output[0], score_threshold=0.3)
     return result
 
 
