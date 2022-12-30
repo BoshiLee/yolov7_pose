@@ -65,15 +65,14 @@ def model_inference_image_list(model_path, source=None, mean=None, scale=None):
         img_file = img_file.rstrip()
         img = cv2.imread(img_file)
         result = inference_processes(model_path, img, mean, scale)
-        # cv2.imshow('my_screen', result)
-        # press escape to exit
         cv2.imshow('YoloV7 Result', result)
+        cv2.imwrite('result.png', img)
         if cv2.waitKey(0) == ord('q'):
-            break
+            continue
     cv2.destroyAllWindows()
 
 
-def model_inference_streaming(model_path, source=None, mean=None, scale=None, dst_path=None):
+def model_inference_streaming(model_path, source=None, mean=None, scale=None):
     os.makedirs(args.dst_path, exist_ok=True)
     cap = cv2.VideoCapture(int(source))
     while True:
@@ -119,7 +118,6 @@ def post_process(frame, output, score_threshold=0.3):
             cv2.putText(img, "score:{:2.1f}".format(det_scores[idx]), (int(det_bbox[0] + 5), int(det_bbox[1]) + 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_map[::-1], 2)
             plot_skeleton_kpts(img, kpt)
-    cv2.imwrite('result.png', img)
     return img
 
 
