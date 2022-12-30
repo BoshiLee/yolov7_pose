@@ -50,7 +50,7 @@ python export.py --weights weights/yolov7-w6-pose.pt --img-size 640 --simplify -
 ## Detected Onnx Runtime
 
 ``` shell
-python onnx_inference\yolo_pose_onnx_inference.py --source 0
+python onnx_inference/yolo_pose_onnx_inference.py --source 0
 ```
 
 ## Citation
