@@ -1,2 +1,3 @@
 ./img.png
 ./man_hands_up.jpg
+./students.jpg

@@ -42,6 +42,17 @@ python test.py --data data/coco_kpts.yaml --img 960 --conf 0.001 --iou 0.65 --we
 python detect.py --weights yolov7-w6-pose.pt --source 0 --kpt-label
 ```
 
+## Export onnx
+
+``` shell
+python export.py --weights weights/yolov7-w6-pose.pt --img-size 640 --simplify --export-nms
+```
+## Detected Onnx Runtime
+
+``` shell
+python onnx_inference\yolo_pose_onnx_inference.py --source 0
+```
+
 ## Citation
 
 ```
